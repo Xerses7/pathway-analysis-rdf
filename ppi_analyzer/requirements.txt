@@ -1,0 +1,8 @@
+# PPI Analyzer Requirements
+# Nessuna dipendenza esterna richiesta - usa solo librerie standard Python
+
+# Opzionali per funzionalità avanzate:
+# pandas>=1.5.0          # Per analisi dati avanzate
+# networkx>=3.0          # Per analisi grafi
+# matplotlib>=3.6.0      # Per visualizzazioni
+# requests>=2.28.0       # Alternativa a urllib (più user-friendly)

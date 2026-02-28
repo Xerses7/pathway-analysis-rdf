@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Output files (generati dall'applicazione)
+ppi_analyzer/eys_cytoscape.json
+ppi_analyzer/eys_cytoscape_nodes.csv
+ppi_analyzer/eys_cytoscape_edges.csv
+ppi_analyzer/*_cytoscape*.json
+ppi_analyzer/*_cytoscape*.csv
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
