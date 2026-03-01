@@ -1,0 +1,3 @@
+[submodule "tools/mcp-rdf-explorer"]
+	path = tools/mcp-rdf-explorer
+	url = https://github.com/emekaokoye/mcp-rdf-explorer
