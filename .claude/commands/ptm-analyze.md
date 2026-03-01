@@ -1,14 +1,14 @@
 # PTM Analyze
 
-Recupera e analizza tutte le modificazioni post-traduzionali (PTM) di una proteina da UniProt, con posizioni esatte nella sequenza, tipo di modifica e contesto biologico.
+Recupera e analizza tutte le modificazioni post-traduzionali (PTM) di qualsiasi proteina umana da UniProt, con posizioni esatte nella sequenza, tipo di modifica e contesto biologico.
 
 ## Come usare
 `/ptm-analyze GENE_SYMBOL`
 
 Esempi:
-- `/ptm-analyze EYS`
-- `/ptm-analyze AIPL1`
-- `/ptm-analyze RHO`
+- `/ptm-analyze TP53`
+- `/ptm-analyze EGFR`
+- `/ptm-analyze BRCA1`
 
 ## Istruzioni per Claude
 
@@ -63,7 +63,7 @@ Organizza i risultati in categorie:
 | **Glicosilazione N-linked** | Glycosylation_Annotation | N-GlcNAc su Asn (sequon N-X-S/T) |
 | **Glicosilazione O-linked** | Glycosylation_Annotation | O-GalNAc su Ser/Thr |
 | **Fosforilazione** | Modified_Residue_Annotation | Phosphoserine, Phosphothreonine, Phosphotyrosine |
-| **Lipidazione** | Lipidation_Annotation | Geranilgeranilazione, Miristoilazione, Palmitoilazione |
+| **Lipidazione** | Lipidation_Annotation | Miristoilazione, Palmitoilazione, Geranilgeranilazione |
 | **Ponti disolfuro** | Disulfide_Bond_Annotation | Cys-Cys |
 | **Altri residui modificati** | Modified_Residue_Annotation | Metilazione, Acetilazione, Ubiquitinazione |
 
@@ -84,38 +84,43 @@ Disolfuri (S-S):     |    SS      SS        SS          |
 Fosforilazioni (P):  |        P       P  P              |
 ```
 
-Indica anche i domini strutturali se noti (EGF-like, LamG, etc.).
+Indica i domini strutturali noti recuperati da UniProt se disponibili.
 
 ### Step 4: Analisi biologica
 
-Per ogni tipo di PTM trovata, spiega:
+Per ogni tipo di PTM trovata, spiega nel contesto funzionale specifico della proteina analizzata:
 
 1. **Glicosilazione N-linked** (se presente):
    - Verifica il sequon N-X-S/T per ogni sito
-   - Indica se il sito è nel reticolo endoplasmatico (N-terminale) o nel Golgi
-   - Funzione: folding, stabilità, secrezione, interazione ECM
+   - Indica il compartimento subcellulare dove avviene (reticolo endoplasmatico vs Golgi)
+   - Funzione: folding, stabilità, secrezione, interazioni extracellulari
 
 2. **Ponti disolfuro** (se presenti):
-   - Fondamentali nei domini EGF-like (ogni dominio EGF ha 3 ponti disolfuro tipici)
+   - Frequenti nei domini extracellulari (EGF-like, immunoglobulin-like, LDL-receptor)
    - Stabilizzano la struttura 3D
-   - Sensibili allo stress ossidativo (rilevante per ABCA4 e RP)
+   - Sensibili allo stress ossidativo e all'ambiente redox cellulare
 
 3. **Lipidazione** (se presente):
-   - Geranilgeranilazione: ancora la proteina alla membrana (es. GRK7 ha questo tipo)
-   - Indica traffico verso i segmenti esterni dei fotorecettori
+   - Miristoilazione / Palmitoilazione: ancora la proteina al doppio strato lipidico
+   - Geranilgeranilazione / Farnesilazione: membrane targeting, spesso per GTPasi
+   - Indica il compartimento subcellulare di destinazione
 
 4. **Fosforilazione** (se presente):
-   - Regolazione dell'attività
-   - Possibili kinasi coinvolte (es. GRK7 fosforila opsine)
+   - Regolazione dell'attività enzimatica o delle interazioni proteina-proteina
+   - Identifica possibili kinasi coinvolte in base ai motivi consensus (es. [ST]-x-x-[DE] per CK2)
+
+5. **Ubiquitinazione / Acetilazione** (se presente):
+   - Ubiquitinazione: regola stabilità e degradazione proteasomale
+   - Acetilazione: modula interazioni con cromatina o attività catalitica
 
 ### Step 5: Considerazioni patologiche
 
 - Indica quali PTM sono nella regione N-terminale vs C-terminale
-- Commenta se i siti PTM sono in domini funzionali noti
+- Commenta se i siti PTM sono in domini funzionali noti (recupera struttura dominio da UniProt)
 - Suggerisci quali PTM potrebbero essere impattate da varianti patologiche note
-- Proponi: "Per analizzare l'impatto delle varianti sulle PTM, usa `/ptm-variant-impact GENE`"
+- Proponi: "Per analizzare l'impatto delle varianti sulle PTM, usa `/ptm-variant-impact $ARGUMENTS`"
 
 ### Note tecniche
 - La query usa FALDO (Feature Annotation Location Description Ontology) per le posizioni
-- UniProt annota solo PTM **sperimentalmente confermate** - i siti predetti in silico non sono inclusi
-- Per sequon N-X-S/T predetti usa `/sequon-scan GENE`
+- UniProt annota solo PTM **sperimentalmente confermate** — i siti predetti in silico non sono inclusi
+- Per sequon N-X-S/T predetti usa `/sequon-scan $ARGUMENTS`

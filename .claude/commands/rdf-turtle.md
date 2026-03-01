@@ -1,11 +1,11 @@
 # RDF Turtle
 
-Genera un file RDF in formato Turtle (.ttl) per un gene e i suoi interattori, combinando dati da UniProt, STRING e dal PDF di riferimento del progetto.
+Genera un file RDF in formato Turtle (.ttl) per qualsiasi gene umano e i suoi interattori, combinando dati da UniProt e STRING in un grafo semantico riutilizzabile.
 
 ## Come usare
 `/rdf-turtle GENE_SYMBOL`
 
-Esempio: `/rdf-turtle EYS` oppure `/rdf-turtle AIPL1`
+Esempi: `/rdf-turtle TP53` oppure `/rdf-turtle EGFR` oppure `/rdf-turtle BRCA1`
 
 ## Istruzioni per Claude
 
@@ -13,34 +13,32 @@ Il gene da modellare è: $ARGUMENTS
 
 Segui questi passi:
 
-1. **Aggrega i dati** eseguendo lo script e interrogando gli endpoint:
+1. **Aggrega i dati** eseguendo lo script:
    ```
-   cd "C:\Users\d_pir\Documents\Prog\Pathway retina RDF\ppi_analyzer"
-   python main.py --gene $ARGUMENTS --output $ARGUMENTS_data.json --format json
+   python ppi_analyzer/main.py --gene $ARGUMENTS --output $ARGUMENTS_data.json --format json
    ```
 
 2. **Costruisci il file Turtle** con questa struttura:
 
    ### Prefissi standard da usare:
    ```turtle
-   @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-   @prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
-   @prefix owl:     <http://www.w3.org/2002/07/owl#> .
-   @prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
-   @prefix up:      <http://purl.uniprot.org/core/> .
-   @prefix taxon:   <http://purl.uniprot.org/taxonomy/> .
-   @prefix go:      <http://purl.obolibrary.org/obo/> .
-   @prefix hgnc:    <http://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/> .
-   @prefix bio:     <http://purl.org/obo/owlapi/> .
-   @prefix retina:  <http://example.org/retina-pathway/> .
-   @prefix string:  <https://string-db.org/network/> .
+   @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+   @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+   @prefix owl:   <http://www.w3.org/2002/07/owl#> .
+   @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+   @prefix up:    <http://purl.uniprot.org/core/> .
+   @prefix taxon: <http://purl.uniprot.org/taxonomy/> .
+   @prefix go:    <http://purl.obolibrary.org/obo/> .
+   @prefix hgnc:  <http://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/> .
+   @prefix pn:    <http://example.org/protein-network/> .
+   @prefix string: <https://string-db.org/network/> .
    ```
 
    ### Triple da generare:
 
    **Identità proteina:**
    ```turtle
-   retina:GENE a up:Protein ;
+   pn:GENE a up:Protein ;
        hgnc:symbol "GENE"^^xsd:string ;
        rdfs:label "FULL_PROTEIN_NAME"^^xsd:string ;
        up:organism taxon:9606 ;
@@ -49,46 +47,44 @@ Segui questi passi:
 
    **GO terms (separati per categoria):**
    ```turtle
-   retina:GENE go:cellular_component go:GO_XXXXXXX ;   # component
-               go:molecular_function go:GO_XXXXXXX ;   # function
-               go:biological_process go:GO_XXXXXXX .   # process
+   pn:GENE go:cellular_component go:GO_XXXXXXX ;
+           go:molecular_function go:GO_XXXXXXX ;
+           go:biological_process go:GO_XXXXXXX .
    ```
 
    **Malattie associate:**
    ```turtle
-   retina:GENE retina:associatedDisease retina:DISEASE_NAME .
-   retina:DISEASE_NAME rdfs:label "Disease description"^^xsd:string .
+   pn:GENE pn:associatedDisease pn:DISEASE_NAME .
+   pn:DISEASE_NAME rdfs:label "Disease description"^^xsd:string .
    ```
 
-   **Interazioni fisiche (da letteratura, alta confidenza):**
+   **Interazioni fisiche (da letteratura):**
    ```turtle
-   retina:GENE retina:physicallyInteractsWith retina:INTERACTOR ;
-       retina:interactionEvidence "Co-IP"^^xsd:string ;
-       retina:interactionSource "Literature"^^xsd:string .
+   pn:GENE pn:physicallyInteractsWith pn:INTERACTOR ;
+       pn:interactionEvidence "Co-IP"^^xsd:string ;
+       pn:interactionSource "Literature"^^xsd:string .
    ```
 
    **Interazioni funzionali (da STRING):**
    ```turtle
-   retina:GENE retina:functionallyAssociatedWith retina:INTERACTOR ;
-       retina:stringScore "0.856"^^xsd:decimal ;
-       retina:stringEvidence "textmining, coexpression"^^xsd:string .
+   pn:GENE pn:functionallyAssociatedWith pn:INTERACTOR ;
+       pn:stringScore "0.856"^^xsd:decimal ;
+       pn:stringEvidence "textmining, coexpression"^^xsd:string .
    ```
 
    **Pathway:**
    ```turtle
-   retina:GENE retina:isPartOfPathway retina:PATHWAY_ID .
-   retina:PATHWAY_ID rdfs:label "Pathway title"^^xsd:string .
+   pn:GENE pn:isPartOfPathway pn:PATHWAY_ID .
+   pn:PATHWAY_ID rdfs:label "Pathway title"^^xsd:string .
    ```
 
-3. **Distingui chiaramente** interazioni fisiche (letteratura) vs funzionali (database):
-   - `retina:physicallyInteractsWith` → confermato sperimentalmente
-   - `retina:functionallyAssociatedWith` → da database (STRING/WikiPathways)
-   - `retina:transportRegulates` → relazione di trasporto (es. EYS → GRK7)
-   - `retina:regulatesLocalizationOf` → regolazione indiretta
+3. **Distingui chiaramente** interazioni fisiche vs funzionali:
+   - `pn:physicallyInteractsWith` → confermato sperimentalmente (Co-IP, Y2H, pull-down)
+   - `pn:functionallyAssociatedWith` → da database (STRING/WikiPathways, coexpression, textmining)
 
-4. **Salva il file**:
+4. **Salva il file** nella cartella del progetto:
    ```
-   C:\Users\d_pir\Documents\Prog\Pathway retina RDF\GENE_ontology.ttl
+   ./output/$ARGUMENTS_ontology.ttl
    ```
 
 5. **Valida la sintassi** verificando che:
@@ -102,15 +98,12 @@ Segui questi passi:
    - N interazioni fisiche
    - N interazioni funzionali
    - N GO terms
-   - N patologie
+   - N patologie associate
 
-7. **Suggerisci** come caricare il file in un triple store locale (es. Apache Jena Fuseki) o come usarlo con rdflib in Python.
-
-### Nota sul gene EYS
-Se il gene è EYS, includi anche le varianti genetiche dal PDF:
-```turtle
-retina:EYS_Variant_1 a retina:GeneticVariant ;
-    retina:hgvsNotation "c.8648_8655del"^^xsd:string ;
-    retina:variantType "deletion"^^xsd:string ;
-    retina:affectsGene retina:EYS .
-```
+7. **Suggerisci** come caricare il file in un triple store locale (es. Apache Jena Fuseki) o come interrogarlo con rdflib in Python:
+   ```python
+   from rdflib import Graph
+   g = Graph()
+   g.parse("$ARGUMENTS_ontology.ttl", format="turtle")
+   print(f"Triple caricate: {len(g)}")
+   ```

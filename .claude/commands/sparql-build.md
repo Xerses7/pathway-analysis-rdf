@@ -6,10 +6,10 @@ Genera ed esegue query SPARQL personalizzate sugli endpoint bioinformatici (UniP
 `/sparql-build DESCRIZIONE IN LINGUAGGIO NATURALE`
 
 Esempi:
-- `/sparql-build proteine umane associate a Retinitis Pigmentosa con GO term cilio`
-- `/sparql-build interattori di RPGR con score STRING maggiore di 0.8`
-- `/sparql-build pathway WikiPathways che contengono EYS e PRPF31`
-- `/sparql-build varianti genetiche di EYS e loro effetto`
+- `/sparql-build proteine umane associate a una malattia con GO term mitocondrio`
+- `/sparql-build interattori di TP53 con score STRING maggiore di 0.8`
+- `/sparql-build pathway WikiPathways che contengono BRCA1 e BRCA2`
+- `/sparql-build varianti patologiche di EGFR e loro effetto`
 
 ## Istruzioni per Claude
 
@@ -22,8 +22,8 @@ Segui questi passi:
    - Quali entità biologiche sono coinvolte (geni, proteine, patologie, GO terms)
    - Che tipo di risultato si aspetta l'utente (lista proteine, interazioni, pathway, varianti)
 
-2. **Consulta i template** nel file di riferimento:
-   `C:\Users\d_pir\Documents\Prog\Pathway retina RDF\sparql_endpoints_bioinformatics.md`
+2. **Consulta i template** nel file di riferimento del progetto:
+   `sparql_endpoints_bioinformatics.md`
    Usa i prefissi e pattern già documentati.
 
 3. **Costruisci la query SPARQL** (o API call per STRING):
@@ -44,7 +44,7 @@ Segui questi passi:
 
 6. **Offri di salvare** la query in un file .sparql per uso futuro:
    ```
-   C:\Users\d_pir\Documents\Prog\Pathway retina RDF\queries\NOME_QUERY.sparql
+   ./queries/NOME_QUERY.sparql
    ```
 
 ### Endpoint e prefissi di riferimento

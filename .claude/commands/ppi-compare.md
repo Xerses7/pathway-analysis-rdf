@@ -5,25 +5,25 @@ Confronta gli interattori di un gene tra letteratura e database, identificando g
 ## Come usare
 `/ppi-compare GENE_SYMBOL INTERACTOR1,INTERACTOR2,...`
 
-Esempio: `/ppi-compare EYS GRK7,AIPL1,DAG1,POMGNT1,POMT2,PROM1,KIF19,PDE6D`
-
-Se non vengono forniti interattori, usa quelli di default del gene EYS dal PDF.
+Esempi:
+- `/ppi-compare TP53 MDM2,ATM,CHEK2,BRCA1`
+- `/ppi-compare EGFR SRC,GRB2,SHC1,PIK3R1,STAT3`
 
 ## Istruzioni per Claude
 
 Analizza gli argomenti: $ARGUMENTS
 
-- Il primo token è il GENE (es. EYS)
-- Il secondo token (se presente) è la lista di interattori da letteratura separati da virgola
+- Il primo token è il GENE_SYMBOL
+- Il secondo token (se presente) è la lista CSV degli interattori da letteratura
 
-Se manca la lista interattori e il gene è EYS, usa: GRK7,AIPL1,DAG1,POMGNT1,POMT2,PROM1,KIF19,PDE6D
+Se manca la lista interattori, chiedi all'utente:
+> "Fornisci gli interattori noti dalla letteratura per **GENE** separati da virgola (es. GENE1,GENE2,GENE3)."
 
 Esegui questi passi:
 
 1. **Esegui lo script**:
    ```
-   cd "C:\Users\d_pir\Documents\Prog\Pathway retina RDF\ppi_analyzer"
-   python main.py --gene GENE --literature INTERACTORS
+   python ppi_analyzer/main.py --gene GENE --literature INTERACTORS
    ```
 
 2. **Presenta il report di confronto** strutturato in tre sezioni:
@@ -35,23 +35,23 @@ Esegui questi passi:
 
    ### Gap nei Database (solo in letteratura)
    - Lista geni documentati in letteratura ma assenti da STRING
-   - Per ognuno: spiegazione biologica del perché l'interazione è nota
-   - Azione suggerita: submission a IntAct/STRING, o ricerca bibliografica
+   - Per ognuno: possibile spiegazione (bassa espressione, contesto tissutale specifico, interazione debole o transiente)
+   - Azione suggerita: submission a IntAct/STRING, o ricerca bibliografica aggiuntiva
 
    ### Nuove Interazioni da Database (non in letteratura)
-   - Top 10 per score, con evidenza
-   - Evidenzia quelli con evidenza sperimentale (escore > 0)
-   - Commento biologico: perché potrebbero essere interessanti?
+   - Top 10 per score, con tipo di evidenza
+   - Evidenzia quelli con evidenza sperimentale diretta (escore > 0)
+   - Commento biologico: perché potrebbero essere rilevanti nel contesto del gene?
 
 3. **Gap Analysis**:
    - Calcola e mostra la Jaccard similarity tra le due fonti
    - Identifica i top 3 candidati per validazione sperimentale
-   - Spiega cosa significherebbe validare queste interazioni
+   - Spiega cosa significherebbe validare queste interazioni (metodo suggerito: Co-IP, Y2H, proximity ligation)
 
 4. **Genera export Cytoscape**:
    ```
-   python main.py --gene GENE --literature INTERACTORS --cytoscape GENE_network.json
+   python ppi_analyzer/main.py --gene GENE --literature INTERACTORS --cytoscape GENE_network.json
    ```
    Notifica all'utente i file CSV generati (nodi + archi) pronti per import in Cytoscape.
 
-Nota: distingui sempre tra interazione FISICA (Co-IP, Y2H) e FUNZIONALE (coexpression, textmining).
+Nota: distingui sempre tra interazione FISICA (Co-IP, Y2H, pull-down) e FUNZIONALE (coexpression, textmining, pathway co-membership).

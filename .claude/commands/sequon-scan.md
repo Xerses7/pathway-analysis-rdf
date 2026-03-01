@@ -6,9 +6,9 @@ Scarica la sequenza proteica da UniProt e scansiona programmaticamente tutti i s
 `/sequon-scan GENE_SYMBOL`
 
 Esempi:
-- `/sequon-scan EYS`
-- `/sequon-scan AIPL1`
-- `/sequon-scan DAG1`
+- `/sequon-scan TP53`
+- `/sequon-scan EGFR`
+- `/sequon-scan BRCA1`
 
 ## Istruzioni per Claude
 
@@ -105,7 +105,7 @@ Crea una tabella con tre categorie:
 
 ### Step 4: Incrocia con varianti patologiche
 
-Per ogni sequon predetto, verifica se c'è una variante RP/patologica nelle posizioni critiche:
+Per ogni sequon predetto, verifica se c'è una variante patologica nelle posizioni critiche:
 
 ```
 Sequon N(pos)-X(pos+1)-S/T(pos+2):
@@ -145,11 +145,11 @@ Lista di sequon con alta probabilità di essere glicosilati ma non ancora valida
 #### D. Implicazione per il Modello RDF
 Suggerisci triple RDF da aggiungere per i nuovi siti:
 ```turtle
-retina:GENE retina:predictedGlycosylationSite [
-    retina:position "POS"^^xsd:integer ;
-    retina:sequon "NXS/T"^^xsd:string ;
-    retina:status "predicted"^^xsd:string ;
-    retina:confirmedInUniProt "false"^^xsd:boolean
+pn:GENE pn:predictedGlycosylationSite [
+    pn:position "POS"^^xsd:integer ;
+    pn:sequon "NXS/T"^^xsd:string ;
+    pn:status "predicted"^^xsd:string ;
+    pn:confirmedInUniProt "false"^^xsd:boolean
 ] .
 ```
 

@@ -1,14 +1,14 @@
 # PTM Variant Impact
 
-Incrocia le varianti patologiche di un gene con i siti di modificazione post-traduzionale (PTM), identificando quali mutazioni possono distruggere siti PTM, alterare sequon o compromettere la funzione proteica.
+Incrocia le varianti patologiche di qualsiasi gene umano con i siti di modificazione post-traduzionale (PTM), identificando quali mutazioni possono distruggere siti PTM, alterare sequon o compromettere la funzione proteica.
 
 ## Come usare
 `/ptm-variant-impact GENE_SYMBOL`
 
 Esempi:
-- `/ptm-variant-impact EYS`
-- `/ptm-variant-impact RHO`
-- `/ptm-variant-impact RPGR`
+- `/ptm-variant-impact TP53`
+- `/ptm-variant-impact BRCA1`
+- `/ptm-variant-impact EGFR`
 
 ## Istruzioni per Claude
 
@@ -93,74 +93,73 @@ Per ogni overlap trovato, assegna una classificazione:
 
 **CRITICO** - Variante sul residuo PTM stesso:
 ```
-Es: N166 → D166 (asparagina → acido aspartico)
-    Effetto: sito glicosilazione N166 completamente perso
-    Conseguenza: mancato folding nel RE → degradazione ERAD
+Es: N[POS] → D[POS] (asparagina → acido aspartico)
+    Effetto: sito di glicosilazione N[POS] completamente perso
+    Conseguenza: possibile mancato folding nel RE → degradazione ERAD
 ```
 
 **ALTO RISCHIO** - Variante nel sequon (posizione ±1 o ±2 dall'Asn):
 ```
-Es: variante a pos 168 (posizione S/T del sequon N166-X-S168)
+Es: variante a pos N+2 (posizione S/T del sequon N-X-S/T)
     Effetto: sequon N-X-S/T → N-X-A (non glicosilabile)
-    Conseguenza: sito N166 non più riconosciuto dall'oligosaccaril-transferasi
+    Conseguenza: sito non più riconosciuto dall'oligosaccaril-transferasi
 ```
 
 **MEDIO RISCHIO** - Variante nel dominio ma distante dal sito:
 ```
-Es: variante a pos 2139, sito PTM a pos 2170
-    Distanza: 31 aa
-    Effetto: possibile alterazione del folding locale nel dominio LamG
-    Conseguenza: sito N2170 fisicamente accessibile ma contesto alterato
+Es: variante a pos P, sito PTM a pos P+N (distanza: N aa)
+    Effetto: possibile alterazione del folding locale nel dominio
+    Conseguenza: sito fisicamente accessibile ma contesto strutturale alterato
 ```
 
 **INDIRETTO** - Troncamento/frameshift a monte del sito:
 ```
-Es: c.8648_8655del → frameshift a pos ~2883
-    Siti PTM impattati: tutti i siti > pos 2883
-    Conseguenza: perdita completa dei siti distali
+Es: frameshift a pos F
+    Siti PTM impattati: tutti i siti > pos F
+    Conseguenza: perdita completa dei siti distali alla troncatura
 ```
 
 ### Step 5: Genera report strutturato
 
-Presenta i risultati in tre sezioni:
+Presenta i risultati in quattro sezioni:
 
 #### A. Siti PTM a Rischio Critico/Alto
-Tabella con: sito PTM | posizione | tipo PTM | variante più vicina | distanza | classificazione rischio | meccanismo probabile
+Tabella: sito PTM | posizione | tipo PTM | variante più vicina | distanza | classificazione rischio | meccanismo probabile
 
 #### B. Mappa visiva di overlap
 ```
-Proteina (N aa):
+Proteina GENE (N aa):
 |─────────────────────────────────────────|
 
-PTM:      [G]  [G][G] [G][G] [G]  [G]        [G]
-          166  269272 311343 506  566         2170
+PTM:      [G]  [P]  [G]  [S-S]  [G]
+          posA posB posC  posD   posE
 
-Varianti: V         V  V     V    V   V    ... V  V  V ...
-          135       618 745 1110 1176 1232    2139 2189 2211
+Varianti:  V         V     V      V
+          var1      var2  var3   var4
 
-          [G] = glicosilazione N-linked
-          V   = variante RP25
-          ↕   = overlap diretto
-          ~   = prossimità (<30 aa)
+          [G]   = glicosilazione N-linked
+          [P]   = fosforilazione
+          [S-S] = ponte disolfuro
+          V     = variante patologica
+          ↕     = overlap diretto
 ```
 
 #### C. Implicazioni Biologiche
 
 Per ogni sito a rischio, spiega:
 - Quale PTM è compromessa
-- Quale processo biologico ne risente (folding, localizzazione, interazione ECM...)
-- Quale pathway è impattato (fototrasduzione, ciglio, matrice IPM...)
-- Se esiste un effetto dominante o recessivo atteso
+- Quale processo biologico ne risente (folding, localizzazione, attività enzimatica, interazioni…)
+- Se esiste un effetto dominante o recessivo atteso in base alla patologia associata
 
 #### D. Suggerimenti per Validazione Sperimentale
 
-Top 3 esperimenti suggeriti:
-1. Mutagenesi sito-diretta: convertire l'Asn del sito glicosilazione → Gln (N→Q, conserva carica ma non è glicosilabile)
-2. Western blot con/senza PNGasi F (deglicosila N-linked) per verificare peso molecolare
-3. Microscopia confocale per confrontare localizzazione WT vs mutante
+Top 3 esperimenti suggeriti in base al tipo di PTM impattata:
+- Glicosilazione: mutagenesi N→Q + Western blot con/senza PNGasi F
+- Fosforilazione: mutagenesi S/T→A (non fosforilabile) o S/T→D (fosfo-mimic)
+- Ponte disolfuro: mutagenesi C→A + analisi SDS-PAGE in condizioni riducenti vs non riducenti
 
 ### Note
-- Prioritizza varianti associate a RP25 o altra patologia confermata
-- Distingui sempre varianti missense (singolo aa) da frameshift/troncamento
-- Indica esplicitamente se una variante ha "uncertain significance" (annotata in UniProt)
-- Proponi: "Per analizzare sequon predetti non ancora in UniProt, usa `/sequon-scan GENE`"
+- Prioritizza varianti con significato patologico confermato (ClinVar: pathogenic / likely pathogenic)
+- Distingui sempre varianti missense (singolo aa) da frameshift/nonsenso/troncamento
+- Indica esplicitamente se una variante ha "uncertain significance" (VUS) annotata in UniProt
+- Proponi: "Per analizzare sequon predetti non ancora in UniProt, usa `/sequon-scan $ARGUMENTS`"
