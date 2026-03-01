@@ -27,3 +27,16 @@ desktop.ini
 .vscode/
 .idea/
 *.swp
+
+# MCP — database locale analisi (generato da mcp-server-sqlite)
+data/analysis_cache.db
+data/
+
+# MCP — dipendenze tool (clonati/installati localmente)
+tools/mcp-rdf-explorer/venv/
+tools/mcp-rdf-explorer/__pycache__/
+tools/mcp-rdf-explorer/src/**/__pycache__/
+
+# RDF output files generati dalle skill
+*.ttl
+!**/*.example.ttl

@@ -1,0 +1,45 @@
+{
+  "mcpServers": {
+    "fetch": {
+      "command": "mcp-server-fetch",
+      "args": [],
+      "description": "HTTP fetch generico — usato per STRING REST API, download FASTA da UniProt, Reactome. Sostituisce urllib.request in sparql_aggregator.py."
+    },
+
+    "sqlite": {
+      "command": "mcp-server-sqlite",
+      "args": ["--db-path", "./data/analysis_cache.db"],
+      "description": "Persistenza locale risultati analisi PPI/PTM tra sessioni. Storico gap analysis, cache interazioni STRING, varianti patogene."
+    },
+
+    "rdf_uniprot": {
+      "command": "python3",
+      "args": [
+        "tools/mcp-rdf-explorer/src/mcp-rdf-explorer/server.py",
+        "--sparql-endpoint",
+        "https://sparql.uniprot.org/sparql"
+      ],
+      "description": "UniProt SPARQL (217B+ triple). Tool: annotazioni proteiche, GO terms, PTM, varianti patogene, sequenze. Usato da /ptm-analyze, /ptm-variant-impact, /sequon-scan."
+    },
+
+    "rdf_wikipathways": {
+      "command": "python3",
+      "args": [
+        "tools/mcp-rdf-explorer/src/mcp-rdf-explorer/server.py",
+        "--sparql-endpoint",
+        "https://sparql.wikipathways.org/sparql"
+      ],
+      "description": "WikiPathways SPARQL (1057+ pathway umani). Tool: pathway retinici, geni partecipanti, cross-reference con interattori. Usato da /ppi-analyze, /sparql-build."
+    },
+
+    "rdf_orthodb": {
+      "command": "python3",
+      "args": [
+        "tools/mcp-rdf-explorer/src/mcp-rdf-explorer/server.py",
+        "--sparql-endpoint",
+        "https://sparql.orthodb.org/"
+      ],
+      "description": "OrthoDB SPARQL — ortologhi multi-specie. Utile per analisi evolutiva dei geni retinici (EYS, RHO, AIPL1) e validazione funzionale cross-species."
+    }
+  }
+}
